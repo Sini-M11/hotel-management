@@ -1,0 +1,227 @@
+import mysql.connector
+def establish_database_connection():
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password=" ",
+            database="project"
+        )
+        return connection
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+class hotelmanage:
+
+    def __init__(self, rt='', s=0, p=0, r=0, t=0, a=1000, name='', address='', cindate='', coutdate='',phoneno='', rno=1):
+
+        print("\n\n*****WELCOME TO HOTEl DIANA*****\n")
+
+        self.rt = rt
+
+        self.r = r
+
+        self.t = t
+
+        self.p = p
+
+        self.s = s
+        self.a = a
+        self.name = name
+        self.address = address
+        self.cindate = cindate
+        self.coutdate = coutdate
+        self.phoneno= phoneno
+        self.rno = rno
+
+    def inputdata(self):
+        connection = establish_database_connection()
+        if connection is None:
+            return
+        cursor=connection.cursor()
+        self.name = input("\nEnter your Fullname:")
+        self.address = input("\nEnter your address:")
+        self.cindate = input("\nEnter your check in date:")
+        self.coutdate = input("\nEnter your checkout date:")
+        self.phoneno= input("\nEnter your phone number:")
+        print("Your room no.:", self.rno, "\n")
+        sql="insert into hotelmanagement(name,address,cindate,coutdate,phoneno) values(%s,%s,%s,%s,%s)"
+        data=(self.name,self.address,self.cindate,self.coutdate,self.phoneno)
+        cursor.execute(sql,data)
+        connection.commit()
+
+    def roomrent(self):  # sel1353
+
+        print("We have the following rooms for you:-")
+
+        print("1.  Class A---->4000")
+
+        print("2.  Class B---->3000")
+
+        print("3.  Class C---->2000")
+
+        print("4.  Class D---->1000")
+
+        x = int(input("Enter the number of your choice Please->"))
+
+        n = int(input("For How Many Nights Did You Stay:"))
+
+        if (x == 1):
+
+            print("you have choose room Class A")
+
+            self.s = 4000 * n
+
+        elif (x == 2):
+
+            print("you have choose room Class B")
+
+            self.s = 3000 * n
+
+        elif (x == 3):
+
+            print("you have choose room Class C")
+
+            self.s = 2000 * n
+
+        elif (x == 4):
+            print("you have choose room Class D")
+
+            self.s = 1000 * n
+
+        else:
+
+            print("please choose a room")
+
+        print("your chosen room rent is =", self.s, "\n")
+
+    def foodpurchased(self):
+        print("*****RESTAURANT MENU*****")
+
+        connection = establish_database_connection()
+        if connection is None:
+            return
+        cursor = connection.cursor()
+
+        menu = ["Dessert", "Cool Drinks", "Breakfast", "Lunch", "Dinner"]
+
+        print("1. Dessert -----> 100", "2. Cool Drinks -----> 50", "3. Breakfast -----> 90", "4. Lunch -----> 110",
+              "5. Dinner -----> 150", "6. Exit")
+
+        self.r = 0
+
+        while True:
+            c = int(input("Enter the number of your choice:"))
+
+            if c == 6:
+                break
+
+            if c < 1 or c > 5:
+                print("You've entered an invalid key")
+                continue
+
+            d = int(input("Enter the quantity:"))
+
+            if (c == 1):
+                cost = 100 * d
+            elif (c == 2):
+                cost = 50 * d
+            elif (c == 3):
+                cost = 90 * d
+            elif (c == 4):
+                cost = 110 * d
+            elif (c == 5):
+                cost = 150 * d
+
+            self.r += cost
+
+            cursor.execute("INSERT INTO fooditems (customer_name,item_name, quantity, total_cost) VALUES (%s, %s, %s, %s)",
+                           (self.name,menu[c - 1], d, cost))
+            connection.commit()
+
+        print("Total food Cost = Rs", self.r, "\n")
+
+        cursor.close()
+        connection.close()
+
+    def display(self):
+        print("******HOTEL BILL******")
+        print("Customer details:")
+        print("Customer name:", self.name)
+        print("Customer address:", self.address)
+        print("Check in date:", self.cindate)
+        print("Check out date", self.coutdate)
+        print("Customer phone number",self.phoneno)
+        print("Room no.", self.rno)
+        print("Your Room rent is:", self.s)
+        print("Your Food bill is:", self.r)
+
+        self.rt = self.s + self.t + self.p + self.r
+
+        print("Your sub total Purchased is:", self.rt)
+        print("Additional Service Charges is", self.a)
+        print("Your Grand total Purchased is:", self.rt + self.a, "\n")
+        self.rno += 1
+
+    def isadmin(self):
+        connection = establish_database_connection()
+        if connection is None:
+            return
+        cursor = connection.cursor()
+
+        user = ["admin","admin1","admin2"]
+        user_id=input("\nEnter the userid:")
+
+        if (user):
+            print(f"{user} is an admin.")
+        else:
+            print(f"{user} is not an admin.")
+        sql = "select * from hotelmanagement"
+        cursor.execute(sql)
+        myresult = cursor.fetchall()
+        for row in myresult:
+            print(row)
+            
+        connection.close()
+
+def main():
+    a = hotelmanage()
+
+    while (1):
+        print("1.Enter Customer Data")
+
+        print("2.Calculate Room Rent")
+
+        print("3.Calculate Food Purchased")
+
+        print("4.Show total cost")
+
+        print("5.ADMIN")
+
+        print("6.EXIT")
+
+        b = int(input("\nEnter the number of your choice:"))
+        if (b == 1):
+            a.inputdata()
+
+        if (b == 2):
+            a.roomrent()
+
+        if (b == 3):
+            a.foodpurchased()
+
+        if (b == 4):
+            a.display()
+
+        if (b == 5):
+            a.isadmin()
+
+        if (b == 6):
+            quit()
+if __name__ == "__main__":
+    menu = ["Dessert", "Cool Drinks", "Breakfast", "Lunch", "Dinner"]
+    r = 0
+
+main()
+
